@@ -1,17 +1,27 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PPRProductSelect } from "@/components/ppr/PPRProductSelect";
+
 
 export interface SimulatorInputs {
   currentAge: number;
   retirementAge: number;
   initialInvestment: number;
   monthlyContribution: number;
+export interface SimulatorInputs {
+  currentAge: number;
+  retirementAge: number;
+  initialInvestment: number;
+  monthlyContribution: number;
+  productId: string;
 }
 
 interface Props {
   values: SimulatorInputs;
   onChange: (next: SimulatorInputs) => void;
+  netReturn: number;
 }
+
 
 interface FieldProps {
   id: keyof SimulatorInputs;
