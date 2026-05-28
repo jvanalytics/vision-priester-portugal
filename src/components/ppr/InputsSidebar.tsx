@@ -1,17 +1,23 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PPRProductSelect } from "@/components/ppr/PPRProductSelect";
+
 
 export interface SimulatorInputs {
   currentAge: number;
   retirementAge: number;
   initialInvestment: number;
   monthlyContribution: number;
+  productId: string;
 }
+
 
 interface Props {
   values: SimulatorInputs;
   onChange: (next: SimulatorInputs) => void;
+  netReturn: number;
 }
+
 
 interface FieldProps {
   id: keyof SimulatorInputs;
@@ -58,7 +64,7 @@ function Field({ id, label, value, suffix, min, max, step, onChange }: FieldProp
   );
 }
 
-export function InputsSidebar({ values, onChange }: Props) {
+export function InputsSidebar({ values, onChange, netReturn }: Props) {
   const update = <K extends keyof SimulatorInputs>(key: K, v: number) =>
     onChange({ ...values, [key]: v });
 
@@ -72,7 +78,17 @@ export function InputsSidebar({ values, onChange }: Props) {
         <p className="mt-1 text-xs text-muted-foreground">Retirement simulator</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div>
+          <h2 className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-3">
+            PPR Product
+          </h2>
+          <PPRProductSelect
+            value={values.productId}
+            onChange={(id) => onChange({ ...values, productId: id })}
+          />
+        </div>
+
         <div>
           <h2 className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-4">
             Parameters
@@ -121,11 +137,12 @@ export function InputsSidebar({ values, onChange }: Props) {
 
         <div className="pt-4 border-t border-border">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Annual return</span>
-            <span className="tabular-nums text-foreground">4.00%</span>
+            <span className="text-muted-foreground">Net annual return</span>
+            <span className="tabular-nums text-foreground">{(netReturn * 100).toFixed(2)}%</span>
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-            Fixed assumption. Compounded monthly. Excludes PPR tax benefits.
+            Gross 4.00% minus the selected fund's management fee. Compounded monthly. Excludes PPR
+            tax benefits.
           </p>
         </div>
       </div>

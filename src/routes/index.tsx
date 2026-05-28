@@ -3,7 +3,13 @@ import { useMemo, useState } from "react";
 import { InputsSidebar, type SimulatorInputs } from "@/components/ppr/InputsSidebar";
 import { ProjectedBalance } from "@/components/ppr/ProjectedBalance";
 import { ProjectionChart } from "@/components/ppr/ProjectionChart";
+import { ProductInfoCard } from "@/components/ppr/ProductInfoCard";
 import { projectGrowth } from "@/lib/ppr-projection";
+import {
+  DEFAULT_PPR_ID,
+  GROSS_ANNUAL_RETURN,
+  PPR_PRODUCTS,
+} from "@/lib/ppr-products";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -12,7 +18,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Simulate the growth of your Portuguese PPR with monthly compounding. Visualize capital projections from today to retirement.",
+          "Simulate the growth of your Portuguese PPR with monthly compounding and real fund fees. Visualize capital projections from today to retirement.",
       },
       { property: "og:title", content: "PPR Vision Simulator" },
       {
@@ -30,7 +36,12 @@ function Simulator() {
     retirementAge: 65,
     initialInvestment: 5000,
     monthlyContribution: 200,
+    productId: DEFAULT_PPR_ID,
   });
+
+  const product =
+    PPR_PRODUCTS.find((p) => p.id === inputs.productId) ?? PPR_PRODUCTS[0];
+  const netReturn = Math.max(0, GROSS_ANNUAL_RETURN - product.fee);
 
   const projection = useMemo(
     () =>
@@ -39,14 +50,14 @@ function Simulator() {
         retirementAge: Math.max(inputs.retirementAge, inputs.currentAge),
         initialInvestment: inputs.initialInvestment,
         monthlyContribution: inputs.monthlyContribution,
-        annualReturn: 0.04,
+        annualReturn: netReturn,
       }),
-    [inputs],
+    [inputs, netReturn],
   );
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
-      <InputsSidebar values={inputs} onChange={setInputs} />
+      <InputsSidebar values={inputs} onChange={setInputs} netReturn={netReturn} />
       <main className="flex-1 min-w-0">
         <ProjectedBalance
           finalBalance={projection.finalBalance}
@@ -54,6 +65,7 @@ function Simulator() {
           yearsToRetirement={projection.yearsToRetirement}
           retirementAge={Math.max(inputs.retirementAge, inputs.currentAge)}
         />
+        <ProductInfoCard product={product} grossReturn={GROSS_ANNUAL_RETURN} />
         <ProjectionChart points={projection.points} />
       </main>
     </div>
